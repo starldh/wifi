@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+open(FILE,"iwinfo|");
+while(<FILE>)
+{
+	if(/ESSID\:\s(.*)/)
+	{	$str=$1;
+		$str=~s/"//;$str=~s/"//;
+		print "\"networkname\"\:\"$str\"\,"}
+	if(/Access\sPoint\:\s(.*)\s/)
+	{print "\"bssid\"\:\"$1\"\,"}
+	if(/Channel\:\s(.*)\s/)
+	{print "\"frechannel\"\:\"$1\"\,"}
+	if(/Bit Rate\:\s(.*s)/)
+	{print "\"txrate\"\:\"$1\"\,"}
+	if(/Noise\:\s(.*)/)
+	{print "\"noisefloor\"\:\"$1\"\,"}
+}
+
+open(FILE,"/usr/sbin/iw wlan0 info|");
+while(<FILE>)
+{
+	if(/addr\s(.*)\s/)
+	{print ("\"wlan0mac\"\:\"$1\"\,");}
+	if(/width\:\s(.*)\,/)
+	{print ("\"channelwidth\"\:\"$1\"\,");}
+}
+
+open(FILE,"/sbin/ifconfig br-lan|");
+while(<FILE>)
+{
+	if(/inet addr\:(.*)\sB/)
+	{print("\"lanip\"\:\"$1\"\,");}
+}
+open(FILE,"/sbin/ifconfig wlan0|");
+while(<FILE>)
+{
+	if(/inet addr\:(.*)\sB/)
+	{print("\"stabridgeip\"\:\"$1\"\,");}
+}
+
+$flag1=0;
+open(FILE,"iwinfo wlan0 a|");
+while(<FILE>)
+{
+	if(/(\w{2}\:.*\:\w{2})\s/)
+	{$hash{'slavemac'} = "\"slavemac\"\:\"$1\"\,";
+	 $flag1++;}
+	if(/\s(.*\sdBm)\s\//)
+	{$hash{'signallevel'} = "\"signallevel\"\:\"$1\"\,";
+	 $flag2++;}
+	if(/RX\:\s(.*MCS.*)\,/)
+	{$txrxrate=$1;
+	$flag3++;}
+	if(/TX\:\s(.*\MCS.*)\,/)
+	{$txrxrate="$1"."\/"."$txrxrate";
+	$hash{'txrxrate'} = "\"txrxrate\"\:\"$txrxrate\"\,";
+	 $flag4++;}
+
+	if($flag1&&$flag1==$flag2&&$flag2==$flag3&&$flag3==$flag4&&<FILE>)
+	{@linkpath = values%hash;
+	 print ("\"device"."$flag1\"\:"."@linkpath");}
+}
+
+# `dmesg > log.txt`;
+# open(FILE3,"log.txt");
+# while(<FILE3>)
+# {print$_;}

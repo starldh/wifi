@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+while(<STDIN>)
+{
+	if(//)
+	{
+		`uci set network.wwan.ipaddr=$1`;
+		`uci set network.wwan.netmask=$2`;
+		`uci set network.lan.ipaddr=$3`;
+		`uci set network.lan.netmask=$4`;
+		`uci set network.stabridge.ipaddr=$1`;
+		`uci commit`;
+		`wifi`;
+	}
+}

@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+`/bin/dmesg > /www/cgi-bin/log.txt`;
+open(FILE,"/www/cgi-bin/log.txt");
+while(<FILE>)
+{print$_;}

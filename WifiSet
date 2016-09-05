@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+while(<STDIN>)
+{
+	if(/wifimode\=Legacy\&Channel\=(.*)\(.*\)\&/)
+	{
+		`uci delete wireless.radio0.htmode`;
+		`uci set wireless.radio0.channel=$1`;
+		`uci commit`;
+		`wifi`;
+		print $1;
+	}
+	elsif(/wifimode\=N\&Channel\=(.*)\(.*\)\&width\=(.*)MHz\&txpower\=(.*)\&rate\=(.*)\&/)
+	{
+		`uci set wireless.radio0.channel=$1`;
+		`uci set wireless.radio0.htmode=HT$2`;
+		`uci set wireless.radio0.txpower=$3`;
+		`uci set wireless.radio0.rate=$4`;
+		# `uci set wireless.@wifi-iface[0].ssid=$5`;
+		# `uci set wireless.@wifi-iface[0].bssid=$6`;
+		print ("$1\n$2");
+		# if(/TDMASlot\=(.*)\&/)
+		# {
+		# 	`uci set wireless.radio0.slot=$1`;
+		# }
+		`uci commit`;
+		`wifi`;
+	}
+}
